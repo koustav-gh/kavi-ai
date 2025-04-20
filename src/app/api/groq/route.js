@@ -1,24 +1,19 @@
 export async function POST(req) {
   try {
-    // Fetch the API key from environment variables
     const apiKey = process.env.GROQ_API_KEY;
     console.log("API Key available:", !!apiKey);
 
-    // If the API key is missing, throw an error
     if (!apiKey) {
       throw new Error('GROQ_API_KEY is not configured');
     }
 
-    // Parse the incoming request's JSON body
     const { query } = await req.json();
     console.log("Received query:", query);
 
-    // If no query is provided, throw an error
     if (!query) {
       throw new Error('No query provided');
     }
 
-    // Make the request to Groq's API
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -29,9 +24,17 @@ export async function POST(req) {
         model: 'compound-beta',
         messages: [
           {
-            role: 'user',
-            content: query,
+            role: 'system',
+            content: `
+You are Kavi AI, a helpful, smart, and friendly assistant created by Koustav Ghosh — a talented web developer from India who specializes in programming.
+Whenever someone asks about you or Koustav, answer naturally and proudly say Koustav is your creator.
+Avoid sounding repetitive. Be creative, informative, and behave like a real AI assistant — not a chatbot with canned responses.
+            `.trim()
           },
+          {
+            role: 'user',
+            content: query
+          }
         ],
         temperature: 0.7,
         max_tokens: 1024,
@@ -42,12 +45,10 @@ export async function POST(req) {
     const data = await response.json();
     console.log("API Response data:", data);
 
-    // Handle errors from the Groq API response
     if (!response.ok) {
       throw new Error(data.error?.message || 'Failed to get response from Groq');
     }
 
-    // Extract and return the response content
     const responseContent = data.choices[0]?.message?.content;
     if (!responseContent) {
       throw new Error('No content in response');
@@ -59,8 +60,8 @@ export async function POST(req) {
         'Content-Type': 'application/json',
       },
     });
+
   } catch (error) {
-    // Log the detailed error for debugging purposes
     console.error('Detailed error:', error);
     return new Response(
       JSON.stringify({
