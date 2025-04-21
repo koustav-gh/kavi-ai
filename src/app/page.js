@@ -17,7 +17,7 @@ export default function Home() {
 
   const handleSend = async () => {
     if (message.trim()) {
-      setError('') // Clear error before sending a new request
+      setError('')
       setMessages((prev) => [...prev, { sender: 'user', content: message }])
       const currentMessage = message
       setMessage('')
