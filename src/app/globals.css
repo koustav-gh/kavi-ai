@@ -18,6 +18,11 @@
   }
 }
 
+html {
+  min-width: 280px;
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -61,6 +66,29 @@ input, button, textarea {
     max-width: 100%;
     font-size: 0.8rem;
     padding: 0.6rem 0.8rem;
+  }
+}
+
+/* NEW BREAKPOINT: Fix 315px to 300px breaking */
+@media (max-width: 320px) {
+  .chat-message {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.7rem;
+    max-width: 100%;
+  }
+
+  input {
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.5rem !important;
+  }
+
+  button {
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.6rem !important;
+  }
+
+  h1 {
+    font-size: 1.3rem;
   }
 }
 

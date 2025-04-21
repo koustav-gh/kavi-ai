@@ -150,60 +150,84 @@ export default function Home() {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`p-2 sm:p-3 md:p-4 text-xs sm:text-sm md:text-base rounded-lg max-w-[85%] sm:max-w-[75%] break-words whitespace-pre-wrap ${
+                className={`p-2 sm:p-3 md:p-4 text-xs sm:text-sm md:text-base rounded-lg max-w-[85%] sm:max-w-[75%] break-words whitespace-pre-wrap transform transition-all duration-300 ease-in-out ${
                   msg.sender === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white ml-auto'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white ml-auto animate-slideUp'
                     : msg.sender === 'ai'
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white mr-auto'
-                    : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                    ? 'bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-black dark:text-white mr-auto animate-fadeIn'
+                    : 'bg-red-100 text-red-800 dark:bg-red-400 dark:text-white'
                 }`}
               >
                 {msg.content}
               </div>
             ))}
             {isTyping && (
-              <div
-                className={`typing-dots flex items-center gap-1 ${
-                  messages[messages.length - 1]?.sender === 'user' ? 'ml-auto' : 'mr-auto'
-                }`}
-              >
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 italic animate-pulse">KAVI is typing...</div>
             )}
             <div ref={messagesEndRef} />
           </div>
         </div>
 
         {/* Message Input */}
-        <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type your message..."
-            className="flex-1 rounded-full px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
-          />
-
-          <button
-            onClick={startVoiceInput}
-            className="p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-md transition-all duration-200"
-            aria-label="Start voice input"
-          >
-            <FaMicrophone className="text-lg sm:text-xl" />
-          </button>
-
-          <button
-            onClick={handleSend}
-            className="p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white shadow-md transition-all duration-200"
-            aria-label="Send message"
-          >
-            <FiSend className="text-lg sm:text-xl" />
-          </button>
+        <div className="p-2 sm:p-4 border-t border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={startVoiceInput}
+              className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:scale-105 transition-transform"
+              aria-label="Voice input"
+            >
+              <FaMicrophone />
+            </button>
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Type your message..."
+              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white transition-all"
+            />
+            <button
+              onClick={handleSend}
+              className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:scale-105 transition-transform"
+              aria-label="Send message"
+            >
+              <FiSend />
+            </button>
+          </div>
+          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>
       </div>
+
+      {/* Animation Styles */}
+      <style jsx>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.4s ease-out;
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-in;
+        }
+      `}</style>
     </div>
   )
 }
