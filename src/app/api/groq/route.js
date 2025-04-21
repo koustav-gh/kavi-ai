@@ -1,79 +1,73 @@
 export async function POST(req) {
-  try {
-    const apiKey = process.env.GROQ_API_KEY;
-    console.log("API Key available:", !!apiKey);
+  const apiKeys = [
+    process.env.GROQ_API_KEY_1,
+    process.env.GROQ_API_KEY_2,
+    process.env.GROQ_API_KEY_3,
+    process.env.GROQ_API_KEY_4,
+  ].filter(Boolean); // Remove any undefined keys
 
-    if (!apiKey) {
-      throw new Error('GROQ_API_KEY is not configured');
-    }
+  const { query } = await req.json();
+  if (!query) {
+    return new Response(
+      JSON.stringify({ error: 'No query provided' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
-    const { query } = await req.json();
-    console.log("Received query:", query);
+  for (let i = 0; i < apiKeys.length; i++) {
+    const apiKey = apiKeys[i];
+    console.log(`Trying API key ${i + 1}`);
 
-    if (!query) {
-      throw new Error('No query provided');
-    }
-
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'compound-beta',
-        messages: [
-          {
-            role: 'system',
-            content: `
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'compound-beta',
+          messages: [
+            {
+              role: 'system',
+              content: `
 You are Kavi AI, a helpful, smart, and friendly assistant created by Koustav Ghosh — a talented web developer from India who specializes in programming.
 Whenever someone asks about you or Koustav, answer naturally and proudly say Koustav is your creator.
 Avoid sounding repetitive. Be creative, informative, and behave like a real AI assistant — not a chatbot with canned responses.
-            `.trim()
-          },
+              `.trim()
+            },
+            { role: 'user', content: query }
+          ],
+          temperature: 0.7,
+          max_tokens: 1024,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || 'Groq API error');
+
+      const responseContent = data.choices[0]?.message?.content;
+      if (!responseContent) throw new Error('Empty response from Groq API');
+
+      return new Response(JSON.stringify({ response: responseContent }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+    } catch (err) {
+      console.warn(`API key ${i + 1} failed:`, err.message);
+      if (i === apiKeys.length - 1) {
+        return new Response(
+          JSON.stringify({
+            error: 'All API keys failed',
+            details: err.message,
+          }),
           {
-            role: 'user',
-            content: query
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
           }
-        ],
-        temperature: 0.7,
-        max_tokens: 1024,
-      }),
-    });
-
-    console.log("API Response status:", response.status);
-    const data = await response.json();
-    console.log("API Response data:", data);
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to get response from Groq');
-    }
-
-    const responseContent = data.choices[0]?.message?.content;
-    if (!responseContent) {
-      throw new Error('No content in response');
-    }
-
-    return new Response(JSON.stringify({ response: responseContent }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-  } catch (error) {
-    console.error('Detailed error:', error);
-    return new Response(
-      JSON.stringify({
-        error: 'Failed to fetch AI response',
-        details: error.message,
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        );
       }
-    );
+    }
   }
 }
