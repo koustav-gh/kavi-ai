@@ -71,11 +71,10 @@ Focus on being helpful, engaging, and natural — like a real assistant, not a c
       if (i === apiKeys.length - 1) {
         return new Response(
           JSON.stringify({
-            error: 'All API keys failed',
-            details: err.message,
+            error: 'Our servers are currently handling a high volume of requests. Please try again after some time or upgrade to the Pro Plan to enjoy uninterrupted access to Kavi AI.',
           }),
           {
-            status: 500,
+            status: 503,
             headers: { 'Content-Type': 'application/json' },
           }
         );
