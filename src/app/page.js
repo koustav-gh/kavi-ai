@@ -162,7 +162,15 @@ export default function Home() {
               </div>
             ))}
             {isTyping && (
-              <div className="text-sm text-gray-500 dark:text-gray-400 italic animate-pulse">KAVI is typing...</div>
+              <div
+                className={`typing-dots flex items-center gap-1 ${
+                  messages[messages.length - 1]?.sender === 'user' ? 'ml-auto' : 'mr-auto'
+                }`}
+              >
+                <span className="dot"></span>
+                <span className="dot"></span>
+                <span className="dot"></span>
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -226,6 +234,34 @@ export default function Home() {
 
         .animate-fadeIn {
           animation: fadeIn 0.4s ease-in;
+        }
+
+        .typing-dots .dot {
+          width: 8px;
+          height: 8px;
+          background-color: #999;
+          border-radius: 50%;
+          animation: typing 1s infinite;
+        }
+
+        .typing-dots .dot:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+
+        .typing-dots .dot:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+          0% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
+          100% {
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>
